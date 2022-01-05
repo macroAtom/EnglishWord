@@ -4,4 +4,10 @@
 
     <!--    main activity name [CHAR LIMIT=12]-->
     <string name="main_activity_name">Word</string>
+
+<!--    插入测试数据-->
+    <string name="insert_dummy_data">Insert a dummy word</string>
+
+<!--    删除数据库所有数据-->
+    <string name="delete_all_word">Delete all word</string>
 </resources>
