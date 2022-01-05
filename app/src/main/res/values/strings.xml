@@ -1,0 +1,7 @@
+<resources>
+<!--    app name [CHAR LIMIT=12]-->
+    <string name="app_name">EnglistWord</string>
+
+<!--    main activity name [CHAR LIMIT=12]-->
+    <string name="main_activity_name">Word</string>
+</resources>
