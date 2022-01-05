@@ -1,4 +1,4 @@
-package com.example.android.englistword;
+package com.example.android.englishword;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.android.englistword", appContext.getPackageName());
+        assertEquals("com.example.android.englishword", appContext.getPackageName());
     }
 }

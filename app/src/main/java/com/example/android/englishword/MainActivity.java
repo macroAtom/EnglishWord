@@ -1,9 +1,8 @@
-package com.example.android.englistword;
+package com.example.android.englishword;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,8 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.android.englistword.data.WordContract.WordEntry;
-import com.example.android.englistword.data.WordDbHelper;
+import com.example.android.englishword.data.WordContract.WordEntry;
+import com.example.android.englishword.data.WordDbHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends AppCompatActivity {

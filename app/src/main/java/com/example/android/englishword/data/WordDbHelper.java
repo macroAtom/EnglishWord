@@ -1,9 +1,9 @@
-package com.example.android.englistword.data;
+package com.example.android.englishword.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.example.android.englistword.data.WordContract.WordEntry;
+import com.example.android.englishword.data.WordContract.WordEntry;
 import androidx.annotation.Nullable;
 
 /**

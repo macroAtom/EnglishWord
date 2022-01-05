@@ -1,4 +1,4 @@
-package com.example.android.englistword;
+package com.example.android.englishword;
 
 import androidx.appcompat.app.AppCompatActivity;
 
