@@ -7,6 +7,8 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,6 +20,9 @@ import android.widget.TextView;
 import com.example.android.englishword.data.WordContract.WordEntry;
 import com.example.android.englishword.data.WordDbHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -125,17 +130,29 @@ public class MainActivity extends AppCompatActivity {
         // 创建一个contentValues 对象，用于存放每一条待插入的条目（item）
         ContentValues contentValues = new ContentValues();
 
-        // 插入一条价的数据，示例数据：book.
+        // 插入一条假的数据，示例数据：book. 将示例数据的值放到ContentValues 对象中。
         contentValues.put(WordEntry.COLUMN_ENGLISH_WORD, "book");
         contentValues.put(WordEntry.COLUMN_ENGLISH_SPEECH, 1);
         contentValues.put(WordEntry.COLUMN_CHINESE, "书");
         contentValues.put(WordEntry.COLUMN_COMMON_PHRASE, "test");
         contentValues.put(WordEntry.COLUMN_EXAMPLE, "I have a book that learn mysql.");
         contentValues.put(WordEntry.COLUMN_VISIBLE, 1);
-        contentValues.put(WordEntry.COLUMN_CREATE_DATE, "2022-01-05");
+
+
+        // 获取日期格式对象
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        // 获取当前时间对象
+        Date date = new Date(System.currentTimeMillis());
+        // 格式化当前时间
+        String nowDate = df.format(date);
+
+        contentValues.put(WordEntry.COLUMN_CREATE_DATE, nowDate);
+
+        Log.i(LOG_TAG, "insertWord: Date " + nowDate);
 
         // 获取数据条数
-        long id =db.insert(WordEntry.TABLE_NAME, null, contentValues);
+        long id = db.insert(WordEntry.TABLE_NAME, null, contentValues);
         Log.i(LOG_TAG, "insertWord: id " + id);
     }
 
@@ -145,45 +162,107 @@ public class MainActivity extends AppCompatActivity {
     private void displayWord() {
 
 
-        String[] projection = new String[]{WordEntry.COLUMN_ENGLISH_WORD};
+//        String[] projection = new String[]{WordEntry.COLUMN_ENGLISH_WORD};
 
 
         /**
-         * 创建cursor 对象，用于存储返回的查询值
+         * 创建cursor 对象，用于存储返回的查询值,方式1，通过数据库直接查询
          */
-        Cursor cursor = db.query(WordEntry.TABLE_NAME,
-                null,                                     // 要展示的列
-                null,
-                null,
-                null,
-                null,
-                null
+//        Cursor cursor = db.query(WordEntry.TABLE_NAME,
+//                null,                                     // 要展示的列
+//                null,                                     // where 过滤条件参数部分
+//                null,                                  // where 过滤条件值部分
+//                null,                                      // group by 字段
+//                null,                                       // group by 后的过滤字段
+//                null                                       // 排序字段
+//        );
+
+        /**
+         * 方式2：通过provider获取数据的值
+         */
+//        Log.i(LOG_TAG, "displayWord: 起始");
+//
+//        String queryUri = "content://com.example.android.englishword/words";
+//        Uri currentUri =  Uri.parse(queryUri);
+//
+//        Uri a = WordEntry.CONTENT_URI;
+
+        Cursor cursor = getContentResolver().query(
+                WordEntry.CONTENT_URI,
+                null,                      // 要展示的列
+                null,                       // where 过滤条件参数部分
+                null,                   // where 过滤条件值部分
+                null                       // 排序字段
+
         );
+
 
 //        cursor.moveToFirst();
 
         int count = cursor.getCount();
 
-        mTextView.setText("单词条数：" + count +"\n");
+        String itemCount = "单词条数：" + count + "\n";
+        String columnTitle = WordEntry._ID + "-"
+                + WordEntry.COLUMN_ENGLISH_WORD + "-"
+                + WordEntry.COLUMN_ENGLISH_SPEECH + "-"
+                + WordEntry.COLUMN_CHINESE + "-"
+                + WordEntry.COLUMN_COMMON_PHRASE + "-"
+                + WordEntry.COLUMN_EXAMPLE + "-"
+                + WordEntry.COLUMN_VISIBLE + "-"
+                + WordEntry.COLUMN_CREATE_DATE;
+
+        mTextView.setText(itemCount + columnTitle);
 
         Log.i(LOG_TAG, "displayWord: " + count);
+
+        /**
+         * 检查是否在数据库表中有值
+         */
+        if (count <= 0) {
+            return;
+        }
+
+        /**
+         * 获取列名索引，从0开始
+         */
+        int idIndex = cursor.getColumnIndex(WordEntry._ID);
+        int englishWordIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_WORD);
+        int englishSpeechIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_SPEECH);
+        int chineseIndex = cursor.getColumnIndex(WordEntry.COLUMN_CHINESE);
+        int commonPhraseIndex = cursor.getColumnIndex(WordEntry.COLUMN_COMMON_PHRASE);
+        int exampleIndex = cursor.getColumnIndex(WordEntry.COLUMN_EXAMPLE);
+        int visibleIndex = cursor.getColumnIndex(WordEntry.COLUMN_VISIBLE);
+        int createDateIndex = cursor.getColumnIndex(WordEntry.COLUMN_CREATE_DATE);
+
         /**
          * 如果条数大于0，再做下面的查询
          */
-        if (count > 0 && cursor.moveToFirst()) {
-            int englishWordIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_WORD);
-            int englishSpeechIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_SPEECH);
-            int chineseIndex = cursor.getColumnIndex(WordEntry.COLUMN_CHINESE);
-            int commonPhraseIndex = cursor.getColumnIndex(WordEntry.COLUMN_COMMON_PHRASE);
-            int exampleIndex = cursor.getColumnIndex(WordEntry.COLUMN_EXAMPLE);
-            int visibleIndex = cursor.getColumnIndex(WordEntry.COLUMN_VISIBLE);
-            int createDateIndex = cursor.getColumnIndex(WordEntry.COLUMN_CREATE_DATE);
+        while (cursor.moveToNext()) {
 
-//            cursor.moveToFirst();
+            /**
+             * 获取列的字段的值
+             */
+            int id = cursor.getInt(idIndex);
+            String englishWord = cursor.getString(englishWordIndex);
+            int englishSpeech = cursor.getInt(englishSpeechIndex);
+            String chinese = cursor.getString(chineseIndex);
+            String commonPhrase = cursor.getString(commonPhraseIndex);
+            String example = cursor.getString(exampleIndex);
+            int visible = cursor.getInt(visibleIndex);
+            String createDate = cursor.getString(createDateIndex);
 
-            String englishWord = cursor.getString(chineseIndex);
-            if (!TextUtils.isEmpty(englishWord)) {
-                mTextView.append(englishWord);
+            // 将单个记录的字段值连接并存储到一个字段中
+            String allItem = id + "-"
+                    + englishWord + "-"
+                    + englishSpeech + "-"
+                    + chinese + "-"
+                    + commonPhrase + "-"
+                    + example + "-"
+                    + visible + "-"
+                    + createDate;
+            if (!TextUtils.isEmpty(allItem)) {
+                // 显示单个字段值
+                mTextView.append("\n" + allItem);
             }
         }
     }

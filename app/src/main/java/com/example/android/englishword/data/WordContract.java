@@ -1,13 +1,24 @@
 package com.example.android.englishword.data;
 
 
+import android.net.Uri;
+
 /**
  * 用于查询的约束条件
  */
 public class WordContract {
+
     // 存储类名
     private final String LOG_TAG = WordContract.class.getSimpleName();
 
+
+    // 存储content uri 的字符串形式
+    public static final String CONTENT_AUTHORITY = "com.example.android.englishword";
+    // 存储基本的内容uri
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://"+CONTENT_AUTHORITY);
+
+    // 存储路径，用于查询数据库中的数据
+    public static final String PATH_WORDS = "words";
 
     /**
      * 内部类，数据库的Schema
@@ -19,6 +30,10 @@ public class WordContract {
          */
         public static final String TABLE_NAME = "words";
 
+        /**
+         * 组装content Uri
+         */
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_WORDS);
 
         /*
         字段id
