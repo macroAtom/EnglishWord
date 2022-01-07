@@ -10,4 +10,49 @@
 
 <!--    删除数据库所有数据-->
     <string name="delete_all_word">Delete all word</string>
+
+
+    <!-- Label for dropdown menu option if the word is visible [CHAR LIMIT=20] -->
+    <string name="visible">可见</string>
+
+    <!-- Label for dropdown menu option if the word is invisible [CHAR LIMIT=20] -->
+    <string name="invisible">不可见</string>
+
+
+<!--    以下是英语的词性-->
+    <!-- Label for dropdown menu option if the word is 名词 [CHAR LIMIT=20] -->
+    <string name="noun">n</string>
+
+    <!-- Label for dropdown menu option if the word is 代词 [CHAR LIMIT=20] -->
+    <string name="pronoun">pron</string>
+
+    <!-- Label for dropdown menu option if the word is 形容词 [CHAR LIMIT=20] -->
+    <string name="adjective">adj</string>
+
+    <!-- Label for dropdown menu option if the word is 副词 [CHAR LIMIT=20] -->
+    <string name="adverb">adv</string>
+
+    <!-- Label for dropdown menu option if the word is 动词 [CHAR LIMIT=20] -->
+    <string name="verb">v</string>
+
+    <!-- Label for dropdown menu option if the word is 数词 [CHAR LIMIT=20] -->
+    <string name="numeral">num</string>
+
+    <!-- Label for dropdown menu option if the word is 冠词 [CHAR LIMIT=20] -->
+    <string name="article">art</string>
+
+    <!-- Label for dropdown menu option if the word is 介词 [CHAR LIMIT=20] -->
+    <string name="preposition">prep</string>
+
+    <!-- Label for dropdown menu option if the word is 连词 [CHAR LIMIT=20] -->
+    <string name="conjunction">conj</string>
+
+    <!-- Label for dropdown menu option if the word is 感叹词 [CHAR LIMIT=20] -->
+    <string name="interjection">interj</string>
+
+    <!-- Label for dropdown menu option if the word is 感叹词 [CHAR LIMIT=20] -->
+    <string name="unknown_speech">unknown speech</string>
+
+
+
 </resources>

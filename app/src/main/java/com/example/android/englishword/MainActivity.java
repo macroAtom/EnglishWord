@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -91,13 +90,20 @@ public class MainActivity extends AppCompatActivity {
         displayWord();
     }
 
+    // 再次进入主界面执行的方法
+    @Override
+    protected void onStart() {
+        super.onStart();
+        displayWord();
+    }
+
     /*
-        inflate a new Menu 膨胀一个菜单
-     */
+            inflate a new Menu 膨胀一个菜单
+         */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 

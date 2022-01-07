@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="visible_array">
+        <item>@string/visible</item>
+        <item>@string/invisible</item>
+    </string-array>
+
+    <string-array name="word_speech_array">
+        <item>@string/unknown_speech</item>
+        <item>@string/noun</item>
+        <item>@string/pronoun</item>
+        <item>@string/adjective</item>
+        <item>@string/adverb</item>
+        <item>@string/verb</item>
+        <item>@string/numeral</item>
+        <item>@string/article</item>
+        <item>@string/preposition</item>
+        <item>@string/conjunction</item>
+        <item>@string/interjection</item>
+    </string-array>
+
+</resources>
