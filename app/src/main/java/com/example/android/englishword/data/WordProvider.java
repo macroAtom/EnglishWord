@@ -1,6 +1,7 @@
 package com.example.android.englishword.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -106,7 +107,30 @@ public class WordProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+
+        // 设置匹配值，用于决定执行查询哪种数据
+        int match = sUriMatcher.match(uri);
+        switch (match) {
+            // 查询整个表的值
+            case ALL_ITEM_CODE:
+                return insertWord(uri, values);
+
+            default:
+                throw new IllegalArgumentException("Cannot insert unknown uri " + uri);
+
+        }
+    }
+
+    private Uri insertWord(@NonNull Uri uri, @Nullable ContentValues values) {
+        db = mWordDbHelper.getReadableDatabase();
+
+        long rowId = db.insert(WordEntry.TABLE_NAME,
+                null,                                     // 要展示的列
+                values                                    // where 过滤条件参数部分
+        );
+
+        return ContentUris.withAppendedId(uri, rowId);
+
     }
 
     @Override

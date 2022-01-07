@@ -183,9 +183,6 @@ public class WordActivity extends AppCompatActivity {
 
     }
 
-    private void displayWord() {
-    }
-
     /**
      * 设置单词词性
      */

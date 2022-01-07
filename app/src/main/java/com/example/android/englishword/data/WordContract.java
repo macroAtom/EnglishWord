@@ -2,11 +2,12 @@ package com.example.android.englishword.data;
 
 
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 /**
  * 用于查询的约束条件
  */
-public class WordContract {
+public class WordContract implements BaseColumns{
 
     // 存储类名
     private final String LOG_TAG = WordContract.class.getSimpleName();
@@ -38,8 +39,7 @@ public class WordContract {
         /*
         字段id
          */
-        public static final String _ID = "id";
-
+        public static final String _ID = BaseColumns._ID;
         /*
         字段英语单词
          */

@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.englishword.data.WordContract.WordEntry;
@@ -34,8 +35,16 @@ public class MainActivity extends AppCompatActivity {
     // TextView 对象
     TextView mTextView;
 
+    // ListView 对象
+    ListView mListView;
+
     // SQLiteDatabase 对象
     SQLiteDatabase db;
+
+    /**
+     * 声明wordAdapter 适配器
+     */
+    WordAdapter mWordAdapter;
 
     /*
        应用入口
@@ -81,7 +90,9 @@ public class MainActivity extends AppCompatActivity {
         mWordDbHelper = new WordDbHelper(this);
 
         // 找到textView 并存储到TextView 对象中
-        mTextView = findViewById(R.id.hello_text_view);
+//        mTextView = findViewById(R.id.hello_text_view);
+
+        displayWordListView();
 
         // 初始化数据库变量
         db = mWordDbHelper.getReadableDatabase();
@@ -94,7 +105,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        displayWord();
+        displayWordListView();
+    }
+
+    private void displayWordListView() {
+        String[] projection = new String[]{WordEntry.COLUMN_ENGLISH_WORD, WordEntry.COLUMN_ENGLISH_SPEECH, WordEntry.COLUMN_CREATE_DATE, WordEntry._ID};
+
+//        String[] projection = new String[]{WordEntry.COLUMN_ENGLISH_WORD};
+
+        Cursor cursor = getContentResolver().query(
+                WordEntry.CONTENT_URI,
+                projection,                      // 要展示的列
+                null,                       // where 过滤条件参数部分
+                null,                   // where 过滤条件值部分
+                null                       // 排序字段
+
+        );
+
+        // 初始化ListView 对象
+        mListView = findViewById(R.id.list);
+
+        mWordAdapter = new WordAdapter(this, cursor);
+
+        mListView.setAdapter(mWordAdapter);
+
     }
 
     /*
@@ -118,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 // 插入数据
                 insertWord();
                 // 显示数据
-                displayWord();
+                displayWordListView();
             case R.id.delete_all_item:
                 //TODO
         }
@@ -131,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void insertWord() {
 
-        db = mWordDbHelper.getWritableDatabase();
-
+//        db = mWordDbHelper.getWritableDatabase();
+        Log.i(LOG_TAG, "insertWord: db:" + db);
         // 创建一个contentValues 对象，用于存放每一条待插入的条目（item）
         ContentValues contentValues = new ContentValues();
 
@@ -158,8 +192,11 @@ public class MainActivity extends AppCompatActivity {
         Log.i(LOG_TAG, "insertWord: Date " + nowDate);
 
         // 获取数据条数
-        long id = db.insert(WordEntry.TABLE_NAME, null, contentValues);
-        Log.i(LOG_TAG, "insertWord: id " + id);
+//        long id = db.insert(WordEntry.TABLE_NAME, null, contentValues);
+
+        getContentResolver().insert(WordEntry.CONTENT_URI, contentValues);
+
+//        Log.i(LOG_TAG, "insertWord: id " + id);
     }
 
     /**
@@ -217,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 + WordEntry.COLUMN_VISIBLE + "-"
                 + WordEntry.COLUMN_CREATE_DATE;
 
-        mTextView.setText(itemCount + columnTitle);
+//        mTextView.setText(itemCount + columnTitle);
 
         Log.i(LOG_TAG, "displayWord: " + count);
 
@@ -268,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
                     + createDate;
             if (!TextUtils.isEmpty(allItem)) {
                 // 显示单个字段值
-                mTextView.append("\n" + allItem);
+//                mTextView.append("\n" + allItem);
             }
         }
     }
