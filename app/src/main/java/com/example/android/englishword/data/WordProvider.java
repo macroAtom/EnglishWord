@@ -77,10 +77,13 @@ public class WordProvider extends ContentProvider {
                 );
 
                 int count = cursor.getCount();
-                Log.i(LOG_TAG, "query: "+count);
+                Log.i(LOG_TAG, "query: " + count);
 
                 break;
             case SINGLE_ITEM_CODE:
+
+                selection = WordEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
 
                 cursor = db.query(WordEntry.TABLE_NAME,
                         projection,                                        // 要展示的列
@@ -108,7 +111,7 @@ public class WordProvider extends ContentProvider {
          * 我们传入第一个参数为ContentResolver，以使与这个Resolver关联的侦听器（这个案例中为catalog activity），自动收到通知。
          * URI:我们要监视的内容的URI
          */
-        cursor.setNotificationUri(getContext().getContentResolver(),uri);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -145,7 +148,7 @@ public class WordProvider extends ContentProvider {
 
         // Notify  all listeners that the data has changed for the pet content URI
         // uri: content://com.example.android.pets/pets
-        getContext().getContentResolver().notifyChange(uri,null);
+        getContext().getContentResolver().notifyChange(uri, null);
 
         return ContentUris.withAppendedId(uri, rowId);
 
@@ -158,6 +161,46 @@ public class WordProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        int match = sUriMatcher.match(uri);
+        switch (match) {
+            // 查询整个表的值
+            case ALL_ITEM_CODE:
+                return updateWord(uri, values, selection, selectionArgs);
+
+            case SINGLE_ITEM_CODE:
+
+                selection = WordEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+
+                return updateWord(uri, values, selection, selectionArgs);
+
+            default:
+                throw new IllegalArgumentException("Cannot insert unknown uri " + uri);
+
+        }
+    }
+
+    private int updateWord(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+
+//        Log.i(LOG_TAG, "updateWord: "+selection);
+//        db = mWordDbHelper.getReadableDatabase();
+//        int id = db.update(WordEntry.TABLE_NAME, values, selection, selectionArgs);
+//        Log.i(LOG_TAG, "updateWord: id "+id);
+//        return id;
+
+
+        SQLiteDatabase database = mWordDbHelper.getWritableDatabase();
+        /**
+         * Insert the new pet with the given values
+         */
+
+        // Returns the number of database rows affected by the update statement
+
+        int rowsUpdated  = database.update(
+                WordEntry.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+        return rowsUpdated;
     }
 }

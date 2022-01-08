@@ -5,8 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 
 import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.UserDictionary;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -69,8 +74,11 @@ public class WordActivity extends AppCompatActivity {
 
     private int mSpeech = 0;
 
+    // 接收来自MainActivity 的uri
+    Uri uri;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_editor);
 
@@ -109,7 +117,73 @@ public class WordActivity extends AppCompatActivity {
          */
         mWordDbHelper = new WordDbHelper(this);
 
+        // 获取intent
+        Intent intent = this.getIntent();
+        uri = intent.getData();
 
+        // 设置label
+        if (uri != null) {
+            this.setTitle("Edit Word");
+            displayWord(uri);
+        } else {
+            this.setTitle("Add Word");
+        }
+    }
+
+    private void displayWord(Uri uri) {
+// 获取cursor 数据
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (cursor.moveToNext()) {
+            int idIndex = cursor.getColumnIndex(WordEntry._ID);
+            int englishWordIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_WORD);
+            int englishSpeechIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_SPEECH);
+            int chineseIndex = cursor.getColumnIndex(WordEntry.COLUMN_CHINESE);
+            int commonPhraseIndex = cursor.getColumnIndex(WordEntry.COLUMN_COMMON_PHRASE);
+            int exampleIndex = cursor.getColumnIndex(WordEntry.COLUMN_EXAMPLE);
+            int visibleIndex = cursor.getColumnIndex(WordEntry.COLUMN_VISIBLE);
+            int createDateIndex = cursor.getColumnIndex(WordEntry.COLUMN_CREATE_DATE);
+
+            String id = cursor.getString(idIndex);
+            String englishWord = cursor.getString(englishWordIndex);
+            int englishSpeech = cursor.getInt(englishSpeechIndex);
+            String chinese = cursor.getString(chineseIndex);
+            String commonPhrase = cursor.getString(commonPhraseIndex);
+            String example = cursor.getString(exampleIndex);
+            int visible = cursor.getInt(visibleIndex);
+            String createDate = cursor.getString(createDateIndex);
+
+            mEnglishWordEditText.setText(englishWord);
+            mSpeechSpinner.setSelection(englishSpeech);
+            mChineseEditText.setText(chinese);
+            mCommonPhraseEditText.setText(commonPhrase);
+            mExampleEditText.setText(example);
+            mVisibleSpinner.setSelection(visible);
+            mCreateDateEditText.setText(createDate);
+
+        }
+    }
+    // 更新单词
+    private void updateWord(Uri uri) {
+
+        String englishWord = mEnglishWordEditText.getText().toString();
+        String englishSpeech = mSpeechSpinner.getSelectedItem().toString();
+        String chinese = mChineseEditText.getText().toString();
+        String commonPhrase = mCommonPhraseEditText.getText().toString();
+        String example = mExampleEditText.getText().toString();
+        String visible = mVisibleSpinner.getSelectedItem().toString();
+        String createDate = mCreateDateEditText.getText().toString();
+
+        // 存放word 单条记录值，用于插入到数据库，初始化
+        contentValues = new ContentValues();
+        contentValues.put(WordEntry.COLUMN_ENGLISH_WORD, englishWord);
+        contentValues.put(WordEntry.COLUMN_ENGLISH_SPEECH, mSpeech);
+        contentValues.put(WordEntry.COLUMN_CHINESE, chinese);
+        contentValues.put(WordEntry.COLUMN_COMMON_PHRASE, commonPhrase);
+        contentValues.put(WordEntry.COLUMN_EXAMPLE, example);
+        contentValues.put(WordEntry.COLUMN_VISIBLE, mVisible);
+        contentValues.put(WordEntry.COLUMN_CREATE_DATE, createDate);
+
+        getContentResolver().update(uri,contentValues,null,null);
     }
 
     /**
@@ -130,10 +204,13 @@ public class WordActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.action_save:
-                // 插入数据
-                insertWord();
-                // 显示数据
-//                displayWord();
+                if (uri != null) {
+                    updateWord(uri);
+                } else {
+                    // 插入数据
+                    insertWord();
+                }
+                // 返回到主页面
                 finish();
             case R.id.action_delete:
 
@@ -177,10 +254,6 @@ public class WordActivity extends AppCompatActivity {
         db = mWordDbHelper.getWritableDatabase();
 
         long id = db.insert(WordEntry.TABLE_NAME, null, contentValues);
-
-        Log.i(LOG_TAG, "insertWord: id " + id);
-
-
     }
 
     /**
