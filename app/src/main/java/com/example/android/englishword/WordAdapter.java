@@ -80,7 +80,5 @@ public class WordAdapter extends CursorAdapter {
         createDateTextView.setText(createDate);
         englishWordTextView.setText(englishWord);
         speechTextView.setText(speech);
-
-
     }
 }

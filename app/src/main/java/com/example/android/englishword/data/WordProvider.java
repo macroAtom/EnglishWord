@@ -95,6 +95,20 @@ public class WordProvider extends ContentProvider {
                 throw new IllegalArgumentException("Cannot query unknown uri " + uri);
         }
 
+        // 管理通知，当有更新时
+        // Notify  all listeners that the data has changed for the pet content URI
+        // uri: content://com.example.android.pets/pets
+//        getContext().getContentResolver().notifyChange(uri,null);
+
+        /**
+         * Set notification URI on the cursor.
+         * so we know what content URI the cursor was created for.
+         * if the data at this URI changes, then we know we need to update the cursor
+         *
+         * 我们传入第一个参数为ContentResolver，以使与这个Resolver关联的侦听器（这个案例中为catalog activity），自动收到通知。
+         * URI:我们要监视的内容的URI
+         */
+        cursor.setNotificationUri(getContext().getContentResolver(),uri);
         return cursor;
     }
 
@@ -128,6 +142,10 @@ public class WordProvider extends ContentProvider {
                 null,                                     // 要展示的列
                 values                                    // where 过滤条件参数部分
         );
+
+        // Notify  all listeners that the data has changed for the pet content URI
+        // uri: content://com.example.android.pets/pets
+        getContext().getContentResolver().notifyChange(uri,null);
 
         return ContentUris.withAppendedId(uri, rowId);
 

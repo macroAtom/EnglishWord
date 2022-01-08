@@ -165,11 +165,11 @@ public class WordActivity extends AppCompatActivity {
         // 存放word 单条记录值，用于插入到数据库，初始化
         contentValues = new ContentValues();
         contentValues.put(WordEntry.COLUMN_ENGLISH_WORD, englishWord);
-        contentValues.put(WordEntry.COLUMN_ENGLISH_SPEECH, englishSpeech);
+        contentValues.put(WordEntry.COLUMN_ENGLISH_SPEECH, mSpeech);
         contentValues.put(WordEntry.COLUMN_CHINESE, chinese);
         contentValues.put(WordEntry.COLUMN_COMMON_PHRASE, commonPhrase);
         contentValues.put(WordEntry.COLUMN_EXAMPLE, example);
-        contentValues.put(WordEntry.COLUMN_VISIBLE, visible);
+        contentValues.put(WordEntry.COLUMN_VISIBLE, mVisible);
         contentValues.put(WordEntry.COLUMN_CREATE_DATE, createDate);
 
 

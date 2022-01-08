@@ -1,7 +1,11 @@
 package com.example.android.englishword;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -24,16 +28,21 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     // 存储类名
     private final String LOG_TAG = MainActivity.class.getSimpleName();
+
+    // Load id
+    private final int LOAD_ID = 1;
 
     // 辅助数据库类对象
     WordDbHelper mWordDbHelper;
 
     // TextView 对象
-    TextView mTextView;
+    TextView mEnglishWordTextView;
+    TextView mCreateDateTextView;
+    TextView mSpeechTextView;
 
     // ListView 对象
     ListView mListView;
@@ -92,20 +101,29 @@ public class MainActivity extends AppCompatActivity {
         // 找到textView 并存储到TextView 对象中
 //        mTextView = findViewById(R.id.hello_text_view);
 
-        displayWordListView();
+//        displayWordListView();
+
+        // 通过适配器显示数据
+        mListView = findViewById(R.id.list);
+
+        mWordAdapter = new WordAdapter(this, null);
+
+        mListView.setAdapter(mWordAdapter);
 
         // 初始化数据库变量
         db = mWordDbHelper.getReadableDatabase();
 
         // 显示数据
-        displayWord();
+//        displayWord();
+        // 初始化LoadManager
+        getSupportLoaderManager().initLoader(LOAD_ID, null, this);
     }
 
     // 再次进入主界面执行的方法
     @Override
     protected void onStart() {
         super.onStart();
-        displayWordListView();
+//        displayWordListView();
     }
 
     private void displayWordListView() {
@@ -125,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         // 初始化ListView 对象
         mListView = findViewById(R.id.list);
 
-        mWordAdapter = new WordAdapter(this, cursor);
+        mWordAdapter = new WordAdapter(this, null);
 
         mListView.setAdapter(mWordAdapter);
 
@@ -152,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                 // 插入数据
                 insertWord();
                 // 显示数据
-                displayWordListView();
+//                displayWordListView();
             case R.id.delete_all_item:
                 //TODO
         }
@@ -308,5 +326,27 @@ public class MainActivity extends AppCompatActivity {
 //                mTextView.append("\n" + allItem);
             }
         }
+    }
+
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+
+        String[] projection = new String[]{WordEntry.COLUMN_ENGLISH_WORD, WordEntry.COLUMN_ENGLISH_SPEECH, WordEntry.COLUMN_CREATE_DATE, WordEntry._ID};
+
+        return new CursorLoader(this, WordEntry.CONTENT_URI, projection, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+        int count = cursor.getCount();
+        // 使用新Cursor 的数据，但是老Cursor 的数据并不关闭
+        mWordAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+        // 清空数据
+        mWordAdapter.swapCursor(null);
     }
 }
