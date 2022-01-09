@@ -6,8 +6,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.cursoradapter.widget.CursorAdapter;
 
 import com.example.android.englishword.data.WordContract;
@@ -64,6 +66,8 @@ public class WordAdapter extends CursorAdapter {
         TextView speechTextView = view.findViewById(R.id.speech_text_view);
 
 
+
+        int idIndex = cursor.getColumnIndex(WordEntry._ID);
         // 获取列索引
         int createDateIndex = cursor.getColumnIndex(WordEntry.COLUMN_CREATE_DATE);
         Log.i(LOG_TAG, "bindView: englishWordIndex " + createDateIndex);
@@ -72,10 +76,22 @@ public class WordAdapter extends CursorAdapter {
         int englishSpeechIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_SPEECH);
 
 
+
         // 将值显示设置在屏幕上
+        int id = cursor.getInt(idIndex);
         String createDate = cursor.getString(createDateIndex);
         String englishWord = cursor.getString(englishWordIndex);
         int speech = cursor.getInt(englishSpeechIndex);
+
+
+
+        // 设置word id 为偶数的背景色
+        if(id%2 == 0){
+            LinearLayout linearLayout = view.findViewById(R.id.list_item);
+            int color = ContextCompat.getColor(context,R.color.gray_100);
+            linearLayout.setBackgroundColor(color);
+        }
+
 
         createDateTextView.setText(createDate);
         englishWordTextView.setText(englishWord);
