@@ -7,7 +7,9 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.android.englishword.MainActivity;
 import com.example.android.englishword.data.WordContract.WordEntry;
@@ -139,6 +141,16 @@ public class WordProvider extends ContentProvider {
     }
 
     private Uri insertWord(@NonNull Uri uri, @Nullable ContentValues values) {
+
+        // 检测插入的值中 单词是否为空
+        if (values.containsKey(WordEntry.COLUMN_ENGLISH_WORD)) {
+            String englishWord = values.getAsString(WordEntry.COLUMN_ENGLISH_WORD);
+            if (TextUtils.isEmpty(englishWord)) {
+//                Toast.makeText(getContext(),"单词不能为空", Toast.LENGTH_SHORT).show();
+                throw new IllegalArgumentException("Word can not be null");
+            }
+        }
+
         db = mWordDbHelper.getReadableDatabase();
 
         long rowId = db.insert(WordEntry.TABLE_NAME,
@@ -213,6 +225,18 @@ public class WordProvider extends ContentProvider {
 //        Log.i(LOG_TAG, "updateWord: id "+id);
 //        return id;
 
+
+
+        // If the {@link PetEntry#COLUMN_PET_NAME} key is present,
+        // check that the name value is not null.
+        // 检查Word 单词是否为空
+        if (values.containsKey(WordEntry.COLUMN_ENGLISH_WORD)) {
+            String englishWord = values.getAsString(WordEntry.COLUMN_ENGLISH_WORD);
+            if (TextUtils.isEmpty(englishWord)) {
+//                Toast.makeText(getContext(),"单词不能为空", Toast.LENGTH_SHORT).show();
+                throw new IllegalArgumentException("Word can not be null");
+            }
+        }
 
         SQLiteDatabase database = mWordDbHelper.getWritableDatabase();
         /**

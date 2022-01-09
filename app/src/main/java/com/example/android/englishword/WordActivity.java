@@ -2,6 +2,7 @@ package com.example.android.englishword;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.loader.app.LoaderManager;
@@ -9,6 +10,7 @@ import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,6 +22,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -83,6 +86,10 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
 
     // 接收来自MainActivity 的uri
     Uri uri;
+
+    //  监听字段值是否更改
+    private boolean mWordHasChanged = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -133,44 +140,21 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
             this.setTitle("Edit Word");
 
             // 初始化load，每一个load 都需要有一个id。
-            getSupportLoaderManager().initLoader(LOAD_ID,null,this);
+            getSupportLoaderManager().initLoader(LOAD_ID, null, this);
         } else {
             this.setTitle("Add Word");
         }
+
+        // 设置监听器，监听字段值的状态
+        mEnglishWordEditText.setOnTouchListener(mOnTouchListener);
+        mSpeechSpinner.setOnTouchListener(mOnTouchListener);
+        mChineseEditText.setOnTouchListener(mOnTouchListener);
+        mCommonPhraseEditText.setOnTouchListener(mOnTouchListener);
+        mExampleEditText.setOnTouchListener(mOnTouchListener);
+        mVisibleSpinner.setOnTouchListener(mOnTouchListener);
+        mCreateDateEditText.setOnTouchListener(mOnTouchListener);
     }
 
-//    private void displayWord(Uri uri) {
-//// 获取cursor 数据
-//        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-//        if (cursor.moveToNext()) {
-//            int idIndex = cursor.getColumnIndex(WordEntry._ID);
-//            int englishWordIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_WORD);
-//            int englishSpeechIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_SPEECH);
-//            int chineseIndex = cursor.getColumnIndex(WordEntry.COLUMN_CHINESE);
-//            int commonPhraseIndex = cursor.getColumnIndex(WordEntry.COLUMN_COMMON_PHRASE);
-//            int exampleIndex = cursor.getColumnIndex(WordEntry.COLUMN_EXAMPLE);
-//            int visibleIndex = cursor.getColumnIndex(WordEntry.COLUMN_VISIBLE);
-//            int createDateIndex = cursor.getColumnIndex(WordEntry.COLUMN_CREATE_DATE);
-//
-//            String id = cursor.getString(idIndex);
-//            String englishWord = cursor.getString(englishWordIndex);
-//            int englishSpeech = cursor.getInt(englishSpeechIndex);
-//            String chinese = cursor.getString(chineseIndex);
-//            String commonPhrase = cursor.getString(commonPhraseIndex);
-//            String example = cursor.getString(exampleIndex);
-//            int visible = cursor.getInt(visibleIndex);
-//            String createDate = cursor.getString(createDateIndex);
-//
-//            mEnglishWordEditText.setText(englishWord);
-//            mSpeechSpinner.setSelection(englishSpeech);
-//            mChineseEditText.setText(chinese);
-//            mCommonPhraseEditText.setText(commonPhrase);
-//            mExampleEditText.setText(example);
-//            mVisibleSpinner.setSelection(visible);
-//            mCreateDateEditText.setText(createDate);
-//
-//        }
-//    }
     // 更新单词
     private void updateWord(Uri uri) {
 
@@ -192,7 +176,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         contentValues.put(WordEntry.COLUMN_VISIBLE, mVisible);
         contentValues.put(WordEntry.COLUMN_CREATE_DATE, createDate);
 
-        getContentResolver().update(uri,contentValues,null,null);
+        getContentResolver().update(uri, contentValues, null, null);
     }
 
     /**
@@ -224,7 +208,7 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
                 break;
             case R.id.action_delete:
 
-                getContentResolver().delete(uri,null,null);
+                getContentResolver().delete(uri, null, null);
 
                 finish();
                 /**
@@ -233,15 +217,112 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
                  */
                 break;
             case android.R.id.home:
-                // Navigate back to parent activity (CatalogActivity)
-                NavUtils.navigateUpFromSameTask(this);
+                // 当点击返回按钮时，需要判断是否编辑了，编辑了之后的内容是否保留放放弃
+
+//                如果没有
+                if (!mWordHasChanged) {
+                    /**
+                     * 如果没有发生任何改变，从当前页面返回到父页面
+                     * Navigate back to parent activity (CatalogActivity)
+                     */
+                    NavUtils.navigateUpFromSameTask(WordActivity.this);
+                    return true;
+                }
+
+                DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        /**
+                         * 丢掉编辑的内容后，从当前页面返回到父页面
+                         */
+                        NavUtils.navigateUpFromSameTask(WordActivity.this);
+                    }
+                };
+
+                showUnsavedChangesDialog(discardButtonClickListener);
                 break;
         }
-
         return true;
     }
 
+    /**
+     * 编辑后，未保存，显示提示框
+     */
+    private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
 
+        /**
+         * 创建一个AlertDialog.Builder,并且设置消息，积极的和消极的click 监听器
+         * Create an AlertDialog.Builder and set the message, and click listeners
+         * for the positive and negative buttons on the dialog.
+         */
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // 设置弹出框的title
+        builder.setMessage("Discard your changes and quit editing?");
+
+        // 设置积极的操作
+        builder.setPositiveButton("Discard", discardButtonClickListener);
+
+        // 设置消极的操作
+        builder.setNegativeButton("Keep Editing", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (dialog != null) {
+                    // 退出弹出框
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        /**
+         * 创建AlertDialog
+         */
+        AlertDialog alertDialog = builder.create();
+
+        /**
+         * 显示alertDialog
+         */
+        alertDialog.show();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        // super.onBackPressed() 时直接返回到父页面的
+//        super.onBackPressed();
+
+        // 当点击返回按钮时，需要判断是否编辑了，编辑了之后的内容是否保留放放弃
+
+        // 如果没有
+        if (!mWordHasChanged) {
+            /**
+             * 如果没有发生任何改变，从当前页面返回到父页面
+             * Navigate back to parent activity (CatalogActivity)
+             */
+//            NavUtils.navigateUpFromSameTask(WordActivity.this);
+            super.onBackPressed();
+            return;
+        }
+
+        DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                /**
+                 * 丢掉编辑的内容后，从当前页面返回到父页面
+                 */
+//                NavUtils.navigateUpFromSameTask(WordActivity.this);
+                // User clicked "Discard" button, close the current activity.
+                finish();
+            }
+        };
+
+        showUnsavedChangesDialog(discardButtonClickListener);
+
+    }
+
+    /**
+     * 插入单词
+     */
     private void insertWord() {
         // 获取变量值
         String englishWord = mEnglishWordEditText.getText().toString();
@@ -268,6 +349,28 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         getContentResolver().insert(WordEntry.CONTENT_URI, contentValues);
 //        long id = db.insert(WordEntry.TABLE_NAME, null, contentValues);
     }
+
+    // 设置监听器,监听字段值是否改变
+    private View.OnTouchListener mOnTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mWordHasChanged = true;
+            /**
+             * 特别注意这里返回的时false
+             * In other words true means that this touch event is
+             * interesting to you and all follow up calls of this
+             * touch event like ACTION_MOVE or ACTION_UP will be
+             * delivered to you.
+             *
+             * If you return false than the touch event will be
+             * passed to the next View further up in the view
+             * hierarchy and you will receive no follow up calls.
+             * The touch event will continue to be passed further
+             * up the view hierarchy until someone consumes it.
+             */
+            return false;
+        }
+    };
 
     /**
      * 设置单词词性
@@ -390,10 +493,10 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
         // 用于后台请求数据
-        return new CursorLoader(this,uri,null,null,null,null);
+        return new CursorLoader(this, uri, null, null, null, null);
     }
 
-//    后台数据返回后执行的操作
+    //    后台数据返回后执行的操作
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
 
