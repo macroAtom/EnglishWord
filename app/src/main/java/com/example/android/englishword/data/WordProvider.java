@@ -154,9 +154,34 @@ public class WordProvider extends ContentProvider {
 
     }
 
+    // 删除word 条目
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+
+        int match = sUriMatcher.match(uri);
+        int rowId;
+        switch (match) {
+            // 查询整个表的值
+            case ALL_ITEM_CODE:
+                db = mWordDbHelper.getWritableDatabase();
+                rowId = db.delete(WordEntry.TABLE_NAME,null,null);
+
+                break;
+            case SINGLE_ITEM_CODE:
+                selection = WordEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                rowId = db.delete(WordEntry.TABLE_NAME,selection,selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("Cannot insert unknown uri " + uri);
+        }
+
+        // Notify  all listeners that the data has changed for the pet content URI
+        // uri: content://com.example.android.pets/pets
+        // 当删除时，需要通知Loader ，否则删除后，页面不会发生变化
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return rowId;
     }
 
     @Override
@@ -201,6 +226,11 @@ public class WordProvider extends ContentProvider {
                 values,
                 selection,
                 selectionArgs);
+
+        // Notify  all listeners that the data has changed for the pet content URI
+        // uri: content://com.example.android.pets/pets
+        // 当删除时，需要通知Loader ，否则删除后，页面不会发生变化
+        getContext().getContentResolver().notifyChange(uri, null);
         return rowsUpdated;
     }
 }

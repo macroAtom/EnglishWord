@@ -143,13 +143,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case R.id.insert_item:
                 // 插入数据
                 insertWord();
+                break;
                 // 显示数据
-//                displayWordListView();
             case R.id.delete_all_item:
-                //TODO
+                //删除所有单词
+                deleteAllWord();
+                break;
         }
 
         return true;
+    }
+    // 删除所有单词
+    private void deleteAllWord() {
+        getContentResolver().delete(WordEntry.CONTENT_URI,null,null);
     }
 
     /**

@@ -221,16 +221,21 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
                 // 返回到主页面
                 finish();
+                break;
             case R.id.action_delete:
 
+                getContentResolver().delete(uri,null,null);
+
+                finish();
                 /**
                  * 这里控制的时左上角的返回上一步按钮（这个返回的时该应用的父Activity）
                  * Respond to a click on the "Up" arrow button in the app bar
                  */
+                break;
             case android.R.id.home:
                 // Navigate back to parent activity (CatalogActivity)
                 NavUtils.navigateUpFromSameTask(this);
-                return true;
+                break;
         }
 
         return true;
@@ -259,10 +264,9 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         contentValues.put(WordEntry.COLUMN_CREATE_DATE, createDate);
 
 
-        // 初始化数据库变量
-        db = mWordDbHelper.getWritableDatabase();
-
-        long id = db.insert(WordEntry.TABLE_NAME, null, contentValues);
+        // 插入数据
+        getContentResolver().insert(WordEntry.CONTENT_URI, contentValues);
+//        long id = db.insert(WordEntry.TABLE_NAME, null, contentValues);
     }
 
     /**
