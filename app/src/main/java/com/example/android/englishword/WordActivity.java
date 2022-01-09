@@ -138,11 +138,17 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         // 设置label
         if (uri != null) {
             this.setTitle("Edit Word");
-
             // 初始化load，每一个load 都需要有一个id。
             getSupportLoaderManager().initLoader(LOAD_ID, null, this);
+
+
+
         } else {
             this.setTitle("Add Word");
+            // Invalidate the options menu, so the "Delete" menu option can be hidden.
+            // (It doesn't make sense to delete a pet that hasn't been created yet.)
+
+            invalidateOptionsMenu();
         }
 
         // 设置监听器，监听字段值的状态
@@ -177,6 +183,20 @@ public class WordActivity extends AppCompatActivity implements LoaderManager.Loa
         contentValues.put(WordEntry.COLUMN_CREATE_DATE, createDate);
 
         getContentResolver().update(uri, contentValues, null, null);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        /**
+         * 如果为插入模式，隐藏delete按钮
+         */
+        if(uri == null){
+            MenuItem menuItem = menu.findItem(R.id.action_delete);
+            menuItem.setVisible(false);
+        }
+        return true;
     }
 
     /**

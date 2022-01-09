@@ -75,10 +75,32 @@ public class WordAdapter extends CursorAdapter {
         // 将值显示设置在屏幕上
         String createDate = cursor.getString(createDateIndex);
         String englishWord = cursor.getString(englishWordIndex);
-        String speech = cursor.getString(englishSpeechIndex);
+        int speech = cursor.getInt(englishSpeechIndex);
 
         createDateTextView.setText(createDate);
         englishWordTextView.setText(englishWord);
-        speechTextView.setText(speech);
+        if (speech == 1) {
+            speechTextView.setText(R.string.noun);
+        } else if (speech == 2) {
+            speechTextView.setText(R.string.pronoun);
+        } else if (speech == 3) {
+            speechTextView.setText(R.string.adjective);
+        } else if (speech == 4) {
+            speechTextView.setText(R.string.adverb);
+        } else if (speech == 5) {
+            speechTextView.setText(R.string.verb);
+        } else if (speech == 6) {
+            speechTextView.setText(R.string.numeral);
+        } else if (speech == 7) {
+            speechTextView.setText(R.string.article);
+        } else if (speech == 8) {
+            speechTextView.setText(R.string.preposition);
+        } else if (speech == 9) {
+            speechTextView.setText(R.string.conjunction);
+        } else if (speech == 10) {
+            speechTextView.setText(R.string.interjection);
+        } else {
+            speechTextView.setText(R.string.unknown_speech);
+        }
     }
 }
