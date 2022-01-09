@@ -205,6 +205,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mWordAdapter.swapCursor(cursor);
     }
 
+    /**
+     * 清空 adapter 对Cursor 的引用,防止内存泄露
+     * Callback called when the data needs to be deleted
+     */
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         // 清空数据

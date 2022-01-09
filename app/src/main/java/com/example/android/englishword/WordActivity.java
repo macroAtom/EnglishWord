@@ -1,8 +1,12 @@
 package com.example.android.englishword;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -30,11 +34,14 @@ import com.example.android.englishword.data.WordDbHelper;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class WordActivity extends AppCompatActivity {
+public class WordActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-
+    // 存储类名
     private static final String LOG_TAG = WordActivity.class.getSimpleName();
-    ;
+
+    // Load id
+    private final int LOAD_ID = 2;
+
     // 英语单词
     EditText mEnglishWordEditText;
 
@@ -124,44 +131,46 @@ public class WordActivity extends AppCompatActivity {
         // 设置label
         if (uri != null) {
             this.setTitle("Edit Word");
-            displayWord(uri);
+
+            // 初始化load，每一个load 都需要有一个id。
+            getSupportLoaderManager().initLoader(LOAD_ID,null,this);
         } else {
             this.setTitle("Add Word");
         }
     }
 
-    private void displayWord(Uri uri) {
-// 获取cursor 数据
-        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-        if (cursor.moveToNext()) {
-            int idIndex = cursor.getColumnIndex(WordEntry._ID);
-            int englishWordIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_WORD);
-            int englishSpeechIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_SPEECH);
-            int chineseIndex = cursor.getColumnIndex(WordEntry.COLUMN_CHINESE);
-            int commonPhraseIndex = cursor.getColumnIndex(WordEntry.COLUMN_COMMON_PHRASE);
-            int exampleIndex = cursor.getColumnIndex(WordEntry.COLUMN_EXAMPLE);
-            int visibleIndex = cursor.getColumnIndex(WordEntry.COLUMN_VISIBLE);
-            int createDateIndex = cursor.getColumnIndex(WordEntry.COLUMN_CREATE_DATE);
-
-            String id = cursor.getString(idIndex);
-            String englishWord = cursor.getString(englishWordIndex);
-            int englishSpeech = cursor.getInt(englishSpeechIndex);
-            String chinese = cursor.getString(chineseIndex);
-            String commonPhrase = cursor.getString(commonPhraseIndex);
-            String example = cursor.getString(exampleIndex);
-            int visible = cursor.getInt(visibleIndex);
-            String createDate = cursor.getString(createDateIndex);
-
-            mEnglishWordEditText.setText(englishWord);
-            mSpeechSpinner.setSelection(englishSpeech);
-            mChineseEditText.setText(chinese);
-            mCommonPhraseEditText.setText(commonPhrase);
-            mExampleEditText.setText(example);
-            mVisibleSpinner.setSelection(visible);
-            mCreateDateEditText.setText(createDate);
-
-        }
-    }
+//    private void displayWord(Uri uri) {
+//// 获取cursor 数据
+//        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+//        if (cursor.moveToNext()) {
+//            int idIndex = cursor.getColumnIndex(WordEntry._ID);
+//            int englishWordIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_WORD);
+//            int englishSpeechIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_SPEECH);
+//            int chineseIndex = cursor.getColumnIndex(WordEntry.COLUMN_CHINESE);
+//            int commonPhraseIndex = cursor.getColumnIndex(WordEntry.COLUMN_COMMON_PHRASE);
+//            int exampleIndex = cursor.getColumnIndex(WordEntry.COLUMN_EXAMPLE);
+//            int visibleIndex = cursor.getColumnIndex(WordEntry.COLUMN_VISIBLE);
+//            int createDateIndex = cursor.getColumnIndex(WordEntry.COLUMN_CREATE_DATE);
+//
+//            String id = cursor.getString(idIndex);
+//            String englishWord = cursor.getString(englishWordIndex);
+//            int englishSpeech = cursor.getInt(englishSpeechIndex);
+//            String chinese = cursor.getString(chineseIndex);
+//            String commonPhrase = cursor.getString(commonPhraseIndex);
+//            String example = cursor.getString(exampleIndex);
+//            int visible = cursor.getInt(visibleIndex);
+//            String createDate = cursor.getString(createDateIndex);
+//
+//            mEnglishWordEditText.setText(englishWord);
+//            mSpeechSpinner.setSelection(englishSpeech);
+//            mChineseEditText.setText(chinese);
+//            mCommonPhraseEditText.setText(commonPhrase);
+//            mExampleEditText.setText(example);
+//            mVisibleSpinner.setSelection(visible);
+//            mCreateDateEditText.setText(createDate);
+//
+//        }
+//    }
     // 更新单词
     private void updateWord(Uri uri) {
 
@@ -369,8 +378,71 @@ public class WordActivity extends AppCompatActivity {
         Date date = new Date(System.currentTimeMillis());
         // 格式化当前时间
         String nowDate = df.format(date);
-
+        // 设置默认日期
         mCreateDateEditText.setText(nowDate);
     }
 
+    @NonNull
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
+        // 用于后台请求数据
+        return new CursorLoader(this,uri,null,null,null,null);
+    }
+
+//    后台数据返回后执行的操作
+    @Override
+    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
+
+        if (cursor.moveToNext()) {
+            int idIndex = cursor.getColumnIndex(WordEntry._ID);
+            int englishWordIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_WORD);
+            int englishSpeechIndex = cursor.getColumnIndex(WordEntry.COLUMN_ENGLISH_SPEECH);
+            int chineseIndex = cursor.getColumnIndex(WordEntry.COLUMN_CHINESE);
+            int commonPhraseIndex = cursor.getColumnIndex(WordEntry.COLUMN_COMMON_PHRASE);
+            int exampleIndex = cursor.getColumnIndex(WordEntry.COLUMN_EXAMPLE);
+            int visibleIndex = cursor.getColumnIndex(WordEntry.COLUMN_VISIBLE);
+            int createDateIndex = cursor.getColumnIndex(WordEntry.COLUMN_CREATE_DATE);
+
+            String id = cursor.getString(idIndex);
+            String englishWord = cursor.getString(englishWordIndex);
+            int englishSpeech = cursor.getInt(englishSpeechIndex);
+            String chinese = cursor.getString(chineseIndex);
+            String commonPhrase = cursor.getString(commonPhraseIndex);
+            String example = cursor.getString(exampleIndex);
+            int visible = cursor.getInt(visibleIndex);
+            String createDate = cursor.getString(createDateIndex);
+
+            mEnglishWordEditText.setText(englishWord);
+            mSpeechSpinner.setSelection(englishSpeech);
+            mChineseEditText.setText(chinese);
+            mCommonPhraseEditText.setText(commonPhrase);
+            mExampleEditText.setText(example);
+            mVisibleSpinner.setSelection(visible);
+            mCreateDateEditText.setText(createDate);
+
+        }
+
+    }
+
+    // 当Loader 被reset时，应该移除数据的所有引用
+    @Override
+    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+//        我的方式
+//        mEnglishWordEditText = null;
+//        mSpeechSpinner = null;
+//        mChineseEditText = null;
+//        mCommonPhraseEditText = null;
+//        mExampleEditText = null;
+//        mVisibleSpinner = null;
+//        mCreateDateEditText = null;
+
+//        教程方式
+        mEnglishWordEditText.setText("");
+        mSpeechSpinner.setSelection(0);
+        mChineseEditText.setText("");
+        mCommonPhraseEditText.setText("");
+        mExampleEditText.setText("");
+        mVisibleSpinner.setSelection(0);
+        mCreateDateEditText.setText("");
+    }
 }
